@@ -1,0 +1,150 @@
+<template>
+	<transition name="modal-fade">
+		<div class="modal-backdrop" @click="close">
+			<div class="modal" @click="preventClose">
+				<header>
+					<h1>Configurar {{element === 'sky' ? 'Ceu' : 'Terra'}}</h1>
+				</header>
+				<section>
+					<md-tabs md-alignment="centered" :md-active-tab="currentTab" @md-changed="changeTab">
+						<md-tab id="color" md-label="Cor">
+							<md-field>
+								<label for="skyBackground">Cor de fundo</label>
+								<md-input name="skyBackground" id="skyBackground" v-model="color" required/>
+							</md-field>
+						</md-tab>
+						<md-tab id="gradient" md-label="Gradient">
+							<md-field>
+								<label for="skyBackground">Estilo do gradiente</label>
+								<md-input name="skyBackground" id="skyBackground" v-model="gradient" required/>
+							</md-field>
+						</md-tab>
+						<md-tab id="img" md-label="Imagem">
+							<md-field>
+								<label for="skyBackground">Url</label>
+								<md-input name="skyBackground" id="skyBackground" v-model="img" required/>
+							</md-field>
+						</md-tab>
+					</md-tabs>
+				</section>
+				<footer>
+					<md-button class="md-primary" @click="close">Fechar</md-button>
+					<md-button class="md-primary" @click="save">Salvar</md-button>
+				</footer>
+			</div>
+		</div>
+	</transition>
+</template>
+
+<script lang="ts">
+import { Component, Prop, Vue } from 'vue-property-decorator'
+@Component
+export default class WidgetModal extends Vue {
+	@Prop({type: String})
+	private element: string
+
+	private color: string = ''
+	private gradient: string = ''
+	private img: string = ''
+	private currentTab: string = 'color'
+	private close() {
+		this.$emit('close')
+	}
+	private preventClose(event: Event) {
+		event.stopPropagation()
+	}
+	private save() {
+		let background: string = ''
+		switch (this.currentTab) {
+			case 'color':
+				background = this.color
+				break;
+			case 'gradient':
+				background = this.gradient
+				break;
+			case 'img':
+				background = `url(${this.img})`
+				break;
+		}
+		this.$emit('background', this.element, background)
+		this.$emit('close')
+	}
+	private changeTab(current: string) {
+		this.currentTab = current
+	}
+}
+</script>
+
+<style scoped lang="scss">
+.modal-fade-enter,
+.modal-fade-leave-active {
+	opacity: 0;
+}
+
+.modal-fade-enter-active,
+.modal-fade-leave-active {
+	transition: opacity 0.5s ease;
+}
+.modal-backdrop {
+	position: fixed;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	background-color: rgba(0, 0, 0, 0.3);
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+.modal {
+	background: #ffffff;
+	box-shadow: 2px 2px 20px 1px;
+	overflow-x: auto;
+	display: flex;
+	flex-direction: column;
+	width: 500px;
+	max-width: 100%;
+}
+
+header,
+footer {
+	padding: 15px;
+	display: flex;
+}
+
+header {
+	border-bottom: 1px solid #eeeeee;
+	justify-content: space-between;
+}
+
+footer {
+	border-top: 1px solid #eeeeee;
+	justify-content: flex-end;
+}
+
+section {
+	position: relative;
+	padding: 20px 10px;
+}
+
+.btn-close {
+	border: none;
+	font-size: 20px;
+	padding: 20px;
+	cursor: pointer;
+	font-weight: bold;
+	color: #4aae9b;
+	background: transparent;
+}
+
+.btn-green {
+	color: white;
+	background: #4aae9b;
+	border: 1px solid #4aae9b;
+	border-radius: 2px;
+}
+.md-content {
+	height: auto !important;
+}
+</style>
