@@ -3,26 +3,19 @@
 		<div class="modal-backdrop" @click="close">
 			<div class="modal" @click="preventClose">
 				<header>
-					<h1>Configurar {{element === 'sky' ? 'Ceu' : 'Terra'}}</h1>
+					<h1>{{element ? 'Editar' : 'Adicionar'}} Widget</h1>
 				</header>
 				<section>
 					<md-tabs md-alignment="centered" :md-active-tab="currentTab" @md-changed="changeTab">
-						<md-tab id="color" md-label="Cor">
-							<md-field>
-								<label for="skyBackground">Cor de fundo</label>
-								<md-input name="skyBackground" id="skyBackground" v-model="color" required/>
-							</md-field>
+						<md-tab id="gallery" md-label="Galeria de Imagens">
+							<md-chips class="md-primary" v-model="urls" md-placeholder="Adicionar imagens" :md-format="validUrl">
+								<label>Urls</label>
+							</md-chips>
 						</md-tab>
-						<md-tab id="gradient" md-label="Gradient">
+						<md-tab id="textBox" md-label="Caixa de Texto">
 							<md-field>
-								<label for="skyBackground">Estilo do gradiente</label>
-								<md-input name="skyBackground" id="skyBackground" v-model="gradient" required/>
-							</md-field>
-						</md-tab>
-						<md-tab id="img" md-label="Imagem">
-							<md-field>
-								<label for="skyBackground">Url</label>
-								<md-input name="skyBackground" id="skyBackground" v-model="img" required/>
+								<label for="textBox">Texto</label>
+								<md-input name="textBox" id="textBox" v-model="text" required/>
 							</md-field>
 						</md-tab>
 					</md-tabs>
@@ -38,15 +31,15 @@
 
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator'
+import { Widget } from '@/assets/ts'
 @Component
 export default class WidgetModal extends Vue {
 	@Prop({type: String})
 	private element: string
 
-	private color: string = ''
-	private gradient: string = ''
-	private img: string = ''
-	private currentTab: string = 'color'
+	private urls: string[] = []
+	private text: string = ''
+	private currentTab: string = 'gallery'
 	private close() {
 		this.$emit('close')
 	}
@@ -54,23 +47,37 @@ export default class WidgetModal extends Vue {
 		event.stopPropagation()
 	}
 	private save() {
-		let background: string = ''
+		const widget: Widget = {
+			x: 0,
+			y: 0,
+			size: 100,
+		}
 		switch (this.currentTab) {
-			case 'color':
-				background = this.color
+			case 'gallery':
+				widget.type = 'gallery'
+				widget.content = this.urls
 				break;
-			case 'gradient':
-				background = this.gradient
-				break;
-			case 'img':
-				background = `url(${this.img})`
+			case 'textBox':
+				widget.type = 'textbox'
+				widget.content = this.text
 				break;
 		}
-		this.$emit('background', this.element, background)
+		this.$emit('widget', widget)
 		this.$emit('close')
 	}
 	private changeTab(current: string) {
 		this.currentTab = current
+	}
+	private validUrl(url: string) {
+		if (!url.startsWith('http')) {
+			url = `http://${url}`
+		}
+		try {
+			const value = new URL(url)
+			return url
+		} catch (_) {
+			return false
+		}
 	}
 }
 </script>

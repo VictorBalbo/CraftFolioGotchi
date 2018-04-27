@@ -1,15 +1,16 @@
 <template>
-  <main id="widget-container" :class="{'editMode': mode === 'edit'}">
+  <main :class="{'editMode': isEditing}">
 	<div id="sky" class="selectable" @click="edit('sky')"></div>
-	
-	<div v-if="mode === 'view'" class="float-menu">	
-    	<md-button @click="mode='edit'" class="md-raised md-primary">Entrar modo de Edição</md-button>
+	<widgetComponent v-for="(widget, key) in widgets" :key="key" class="selectable"/>
+
+	<div v-if="!isEditing" class="float-menu">	
+    	<md-button @click="isEditing=true" class="md-raised md-primary">Entrar modo de Edição</md-button>
 	</div>
-	<div v-if="mode === 'edit'" class="float-menu">
-    	<md-button @click="mode='view'" class="md-raised md-primary">Entrar modo de Visualização</md-button>
-		<md-button class="md-icon-button md-raised md-primary">
+	<div v-if="isEditing" class="float-menu">
+    	<md-button @click="isEditing=false" class="md-raised md-primary">Entrar modo de Visualização</md-button>
+		<md-button @click="editWidget()" class="md-icon-button md-raised md-primary">
 			<md-icon>add</md-icon>
-			<md-tooltip md-direction="left">Adicionar Widget</md-tooltip>
+			<md-tooltip :md-active="isEditing" md-direction="left">Adicionar Widget</md-tooltip>
 		</md-button>
 	</div>
 
@@ -18,7 +19,7 @@
 	<div id="ground" class="selectable" @click="edit('ground')"></div>
 
 	<backgroundModal v-if="showBackgroundModal" class="front-view" @close="showBackgroundModal = false" @background="changeBackground" :element="editingElement"/>
-	<widgetModal v-if="showWidgetModal" class="front-view" @close="showWidgetModal = false" @background="changeBackground" :element="editingElement"/>
+	<widgetModal v-if="showWidgetModal" class="front-view" @close="showWidgetModal = false" @widget="changeWidget" :element="editingElement"/>
   </main>
 </template>
 
@@ -28,41 +29,48 @@ import { Component } from 'vue-property-decorator'
 import { Character, Widget } from '@/assets/ts'
 import BackgroundModal from '@/components/BackgroundModal.vue'
 import WidgetModal from '@/components/WidgetModal.vue'
+import WidgetComponent from '@/components/WidgetComponent.vue'
 @Component({
 	components: {
 		BackgroundModal,
 		WidgetModal,
+		WidgetComponent,
 	},
 })
 export default class World extends Vue {
-	private mode: string = 'view'
+	private isEditing: boolean = false
 	private showBackgroundModal: boolean = false
 	private showWidgetModal: boolean = false
 	private editingElement: string = ''
 	private sky: HTMLDivElement
 	private ground: HTMLDivElement
-	private container: HTMLDivElement
+	private widgets: Widget[] = []
 	private mounted() {
 		this.sky = document.querySelector('#sky') as HTMLDivElement
 		this.ground = document.querySelector('#ground') as HTMLDivElement
-		this.container = document.querySelector('#widget-container') as HTMLDivElement
 		const charDiv = document.querySelector('#char') as HTMLDivElement
 		const char = new Character(charDiv, 100)
 		this.initWidgets()
 	}
 	private initWidgets() {
-		const widgetsObj = JSON.parse(localStorage.getItem('widgets') || '{ "widgets": [] }')
-		widgetsObj.widgets.forEach((widgetObj: any) => {
-			const element = document.createElement('div')
-			element.setAttribute('id', widgetObj.id)
-			this.container.appendChild(element)
-			const widget = new Widget(element, widgetObj.size, true, widgetObj.x, widgetObj.y)
-		});
+		const savedWidgets = JSON.parse(localStorage.getItem('widgets') || '{ }') as Widget[]
+		if (savedWidgets.length > 0) {
+			savedWidgets.forEach((widget: Widget) => {
+				const element = document.createElement('div')
+				element.setAttribute('id', widget.id || '')
+			});
+		}
 	}
 	private edit(element: string) {
-		if (this.mode === 'edit') {
+		if (this.isEditing === true) {
 			this.editingElement = element
 			this.showBackgroundModal = true
+		}
+	}
+	private editWidget(element: string) {
+		if (this.isEditing === true) {
+			this.editingElement = element
+			this.showWidgetModal = true
 		}
 	}
 	private changeBackground(element: string, background: string) {
@@ -71,6 +79,9 @@ export default class World extends Vue {
 		} else if (element === 'ground') {
 			this.ground.style.background = background
 		}
+	}
+	private changeWidget(widget: Widget) {
+		this.widgets.push(widget)
 	}
 }
 </script>
@@ -108,7 +119,6 @@ main {
 		position: absolute;
 		bottom: 100px;
 		left: 0px;
-		/* background-image: url('http://www.pngmart.com/files/4/Android-PNG-HD.png'); */
 		background-image: url('../assets/imgs/bb8.gif');
 		background-size: contain;
 		transition: linear all 200ms;
@@ -124,10 +134,10 @@ main {
 		background-size: contain;
 	}
 
-	.widget {
-		height: 80px;
-		width: 80px;
-		background-color: aquamarine;
+	.widgets-container {
+		position: absolute;
+		height: calc(100% - 100px);
+		width: 100%;
 	}
 
 	.float-menu {

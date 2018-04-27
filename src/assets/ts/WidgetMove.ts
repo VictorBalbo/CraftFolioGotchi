@@ -1,8 +1,8 @@
 import interact from 'interactjs'
 
-export const WidgetListener = () => {
+export const WidgetListener = (element: HTMLElement) => {
 	// target elements with the "draggable" class
-	interact('.draggable').draggable({
+	interact(element).draggable({
 		// enable inertial throwing
 		inertia: true,
 		// keep the element within the area of it's parent

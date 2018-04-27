@@ -1,12 +1,17 @@
 import Rx from 'rxjs/Rx'
 import { Widget } from '@/assets/ts/Widget'
 
-export class Character extends Widget {
-	private maxX = 0
-	private stepSize = 80
+export class Character {
+	public element: HTMLDivElement;
+	public x: number;
+	public y: number;
+	public size: number;
+	public maxX = 0
+	public stepSize = 80
 
 	constructor(divElement: HTMLDivElement, size: number) {
-		super(divElement, size, false)
+		this.element = divElement
+		this.size = size
 		const position = (localStorage.getItem(this.element.id) || '0,100').split(',')
 		this.setPosition(parseInt(position[0], 10), parseInt(position[1], 10))
 		this.listenKeys()
@@ -39,7 +44,7 @@ export class Character extends Widget {
 				}
 				this.element.style.left = `${this.x}px`
 				this.element.style.transform = `rotateY(${currentX >= this.x ? '0' : '180'}deg)`
-				this.savePosition()
+				localStorage.setItem(this.element.id, `${this.x},${this.y}`)
 			})
 
 		Rx.Observable.merge(
@@ -54,5 +59,12 @@ export class Character extends Widget {
 					this.element.style.bottom = `100px`
 				}, 200)
 			})
+	}
+
+	private setPosition = (x: number = this.x, y: number = this.y) => {
+		this.x = x
+		this.y = y
+		this.element.style.left = `${this.x}px`
+		this.element.style.bottom = `${this.y}px`
 	}
 }
