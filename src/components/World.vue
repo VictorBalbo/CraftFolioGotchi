@@ -52,6 +52,9 @@ export default class World extends Vue {
 		const charDiv = document.querySelector('#char') as HTMLDivElement
 		const char = new Character(charDiv, 100)
 		this.initWidgets()
+		window.addEventListener('beforeunload', () => {
+			this.saveWidgets()
+		})
 	}
 	private initWidgets() {
 		const savedWidgets = JSON.parse(localStorage.getItem('widgets') || '{ }') as Widget[]

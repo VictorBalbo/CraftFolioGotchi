@@ -1,2 +1,2 @@
 export { Character } from './Char'
-export { Widget, WidgetListener } from './Widget'
+export { Widget } from './Widget'
