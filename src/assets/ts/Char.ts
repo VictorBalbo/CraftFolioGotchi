@@ -1,5 +1,4 @@
 import Rx from 'rxjs/Rx'
-import { Widget } from '@/assets/ts/Widget'
 
 export class Character {
 	public element: HTMLDivElement;

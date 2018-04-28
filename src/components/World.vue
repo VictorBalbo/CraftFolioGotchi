@@ -1,7 +1,7 @@
 <template>
   <main :class="{'editMode': isEditing}">
 	<div id="sky" class="selectable" @click="edit('sky')"></div>
-	<widgetComponent v-for="(widget, key) in widgets" :key="key" class="selectable"/>
+	<widgetComponent v-for="(widget, key) in widgets" :key="key" :widget="widget" :isEditing="isEditing" class="selectable"/>
 
 	<div v-if="!isEditing" class="float-menu">	
     	<md-button @click="isEditing=true" class="md-raised md-primary">Entrar modo de Edição</md-button>

@@ -1,38 +1,35 @@
 <template>
-  <div class="widget" @click="preventBubbling">
-
-  </div>
+  	<md-card class="widget" @click="preventBubbling">
+	  	<div v-if="widget.type==='textbox'" class="content">
+			<textarea v-if="isEditing" :value="widget.content"></textarea>
+			<span v-else>{{widget.content}}</span>
+	  </div>
+  </md-card>
 </template>
 
 <script lang="ts">
-import { WidgetListener } from '@/assets/ts/WidgetMove'
+import { Widget, WidgetListener } from '@/assets/ts'
 import { Component, Prop, Vue } from 'vue-property-decorator'
 
 @Component
 export default class WidgetComponent extends Vue {
-	@Prop({ type: Number, default: 0 })
-	private x: number
-	@Prop({ type: Number, default: 0 })
-	private y: number
-	@Prop({ type: Number })
-	private size: number
+	@Prop({ type: Object })
+	private widget: Widget
+
 	@Prop({ type: Boolean })
-	private draggable: boolean
-	@Prop({ type: String })
-	private type: string
-	@Prop() private content: {}
+	private isEditing: boolean
 
 	private element: HTMLDivElement
 
 	private mounted() {
 		this.element = this.$el as HTMLDivElement
-		this.element.style.left = `${this.x}px`
-		this.element.style.top = `${this.y}px`
+		this.element.style.left = `${this.widget.x}px`
+		this.element.style.top = `${this.widget.y}px`
 		WidgetListener(this.element)
 	}
 
 	private savePosition = () => {
-		localStorage.setItem(this.element.id, `${this.x},${this.y}`)
+		localStorage.setItem(this.element.id, `${this.widget.x},${this.widget.y}`)
 	}
 
 	private preventBubbling(event: Event) {
@@ -41,10 +38,31 @@ export default class WidgetComponent extends Vue {
 }
 </script>
 <style lang="scss" scoped>
-	.widget {
-		width: 100px;
-		height: 100px;
-		background-color: brown;
-		position: absolute;
-	}
+$maxSize: 320px;
+$minSize: 60px;
+.widget {
+	max-width: $maxSize;
+	max-height: $maxSize;
+	min-width: $minSize;
+	min-height: $minSize;
+	height: 10%;
+	width: 10%;
+	padding: 5px;
+	position: absolute;
+}
+.content {
+	width: 100%;
+	height: 100%;
+	display: flex;
+}
+.content textarea {
+	width: 90%;
+	height: 90%;
+	margin: auto;
+}
+.content span {
+	width: auto;
+	height: auto;
+	margin: auto;
+}
 </style>
