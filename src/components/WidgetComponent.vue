@@ -1,10 +1,13 @@
 <template>
   	<md-card class="widget" @click="preventBubbling">
 	  	<div v-if="widget.type==='textbox'" class="content">
-			<textarea v-if="isEditing" :value="widget.content"></textarea>
+			<md-field v-if="isEditing">
+				<label>Conteudo</label>
+				<md-textarea v-model="widget.content"></md-textarea>
+			</md-field>
 			<span v-else>{{widget.content}}</span>
-	  </div>
-  </md-card>
+	  	</div>
+  	</md-card>
 </template>
 
 <script lang="ts">
@@ -44,9 +47,8 @@ $minSize: 60px;
 	max-width: $maxSize;
 	max-height: $maxSize;
 	min-width: $minSize;
-	min-height: $minSize;
-	height: 10%;
-	width: 10%;
+	width: auto;
+	height: auto;
 	padding: 5px;
 	position: absolute;
 }
@@ -55,7 +57,7 @@ $minSize: 60px;
 	height: 100%;
 	display: flex;
 }
-.content textarea {
+.content .md-field {
 	width: 90%;
 	height: 90%;
 	margin: auto;

@@ -1,22 +1,23 @@
 <template>
   <main :class="{'editMode': isEditing}">
 	<div id="sky" class="selectable" @click="edit('sky')"></div>
+
 	<widgetComponent v-for="(widget, key) in widgets" :key="key" :widget="widget" :isEditing="isEditing" class="selectable"/>
+
+	<div id="board" class="selectable"></div>
+	<div id="char" class="selectable"></div>
+	<div id="ground" class="selectable" @click="edit('ground')"></div>
 
 	<div v-if="!isEditing" class="float-menu">	
     	<md-button @click="isEditing=true" class="md-raised md-primary">Entrar modo de Edição</md-button>
 	</div>
 	<div v-if="isEditing" class="float-menu">
-    	<md-button @click="isEditing=false" class="md-raised md-primary">Entrar modo de Visualização</md-button>
+    	<md-button @click="saveWidgets" class="md-raised md-primary">Entrar modo de Visualização</md-button>
 		<md-button @click="editWidget()" class="md-icon-button md-raised md-primary">
 			<md-icon>add</md-icon>
 			<md-tooltip :md-active="isEditing" md-direction="left">Adicionar Widget</md-tooltip>
 		</md-button>
 	</div>
-
-	<div id="char" class="selectable"></div>
-	<div id="board" class="selectable"></div>
-	<div id="ground" class="selectable" @click="edit('ground')"></div>
 
 	<backgroundModal v-if="showBackgroundModal" class="front-view" @close="showBackgroundModal = false" @background="changeBackground" :element="editingElement"/>
 	<widgetModal v-if="showWidgetModal" class="front-view" @close="showWidgetModal = false" @widget="changeWidget" :element="editingElement"/>
@@ -55,10 +56,7 @@ export default class World extends Vue {
 	private initWidgets() {
 		const savedWidgets = JSON.parse(localStorage.getItem('widgets') || '{ }') as Widget[]
 		if (savedWidgets.length > 0) {
-			savedWidgets.forEach((widget: Widget) => {
-				const element = document.createElement('div')
-				element.setAttribute('id', widget.id || '')
-			});
+			this.widgets = savedWidgets
 		}
 	}
 	private edit(element: string) {
@@ -72,6 +70,11 @@ export default class World extends Vue {
 			this.editingElement = element
 			this.showWidgetModal = true
 		}
+	}
+	private saveWidgets() {
+		const widgetsJson = JSON.stringify(this.widgets)
+		localStorage.setItem('widgets', widgetsJson)
+		this.isEditing = false
 	}
 	private changeBackground(element: string, background: string) {
 		if (element === 'sky') {
