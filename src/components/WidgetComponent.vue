@@ -7,6 +7,26 @@
 			</md-field>
 			<span v-else>{{widget.content}}</span>
 	  	</div>
+		<div v-if="widget.type==='gallery'" class="content">
+			<md-field v-if="isEditing">
+				<md-chips class="md-primary" v-model="widget.content" md-placeholder="Adicionar imagens" :md-format="validUrl">
+					<label>Urls</label>
+				</md-chips>
+			</md-field>
+			<div v-else class="slider">
+				<div class="arrow" @click="slide(-1)">
+					<md-icon class="md-size-2x">keyboard_arrow_left</md-icon>
+				</div>
+				<md-card-media-cover>
+					<md-card-media>
+						<img :src="widget.content[currentImage]" alt="Skyscraper">
+					</md-card-media>
+				</md-card-media-cover>
+				<div class="arrow" @click="slide(1)">
+					<md-icon class="md-size-2x">keyboard_arrow_right</md-icon>
+				</div>
+			</div>
+	  	</div>
   	</md-card>
 </template>
 
@@ -24,6 +44,7 @@ export default class WidgetComponent extends Vue {
 	private isEditing: boolean
 
 	private element: HTMLDivElement
+	private currentImage: number = 0
 
 	private mounted() {
 		this.element = this.$el as HTMLDivElement
@@ -90,6 +111,27 @@ export default class WidgetComponent extends Vue {
 		this.element.dataset.x = `${x}`
 		this.element.dataset.y = `${y}`
 	}
+
+	private validUrl(url: string) {
+		if (!url.startsWith('http')) {
+			url = `http://${url}`
+		}
+		try {
+			const value = new URL(url)
+			return url
+		} catch (_) {
+			return false
+		}
+	}
+
+	private slide(i: number) {
+		this.currentImage += i
+		if (this.currentImage >= this.widget.content.length) {
+			this.currentImage = 0
+		} else if (this.currentImage < 0) {
+			this.currentImage = this.widget.content.length - 1
+		}
+	}
 }
 </script>
 <style lang="scss" scoped>
@@ -110,13 +152,22 @@ $minSize: 60px;
 	display: flex;
 }
 .content .md-field {
-	width: 90%;
-	height: 90%;
 	margin: auto;
 }
 .content span {
 	width: auto;
 	height: auto;
 	margin: auto;
+}
+.slider, .arrow {
+	display: flex;
+}
+</style>
+<style lang="scss">
+.md-chip {
+	overflow: hidden;
+}
+.md-ripple {
+	text-overflow: ellipsis;
 }
 </style>
