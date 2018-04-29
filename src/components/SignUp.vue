@@ -6,7 +6,7 @@
       </md-card-header>
 
       <md-card-content>
-        <form action="/world">
+        <form action="/#/world">
 					<md-field>
             <label for="name">Name</label>
             <md-input name="name" id="name" v-model="name" required/>

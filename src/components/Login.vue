@@ -9,7 +9,7 @@
         <p>Bem vindo ao CraftFolioGotchi!</p>
         <p>Este é um trabalho da disciplina de Programação Web do Cefet-MG</p>
         <p>O trabalho foi feito pelos alunos <b>Lucas Viana</b> e <b>Victor Balbo</b></p>
-        <form action="/world">
+        <form action="/#/world">
           <md-field>
             <label for="login">Login</label>
             <md-input name="login" id="login" v-model="login" required/>
@@ -19,7 +19,7 @@
             <md-input name="password" id="password" type="password" v-model="password" required/>
           </md-field>
           <md-button class="md-raised md-primary" type="submit">Logar</md-button>
-          <p>Ainda não tem um Login? <a href="/signUp">Cadastre-se</a></p>
+          <p>Ainda não tem um Login? <a href="/#/signUp">Cadastre-se</a></p>
         </form>
       </md-card-content>
     </md-card>
