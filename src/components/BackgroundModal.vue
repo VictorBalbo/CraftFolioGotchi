@@ -3,26 +3,24 @@
 		<div class="modal-backdrop" @click="close">
 			<div class="modal" @click="preventClose">
 				<header>
-					<h1>Configurar {{element === 'sky' ? 'Ceu' : 'Terra'}}</h1>
+					<h1>Configurar {{element.id === 'sky' ? 'Ceu' : 'Terra'}}</h1>
 				</header>
 				<section>
 					<md-tabs md-alignment="centered" :md-active-tab="currentTab" @md-changed="changeTab">
 						<md-tab id="color" md-label="Cor">
-							<md-field>
-								<label for="skyBackground">Cor de fundo</label>
-								<md-input name="skyBackground" id="skyBackground" v-model="color" required/>
-							</md-field>
+							<chrome-picker v-model="background" />
 						</md-tab>
 						<md-tab id="gradient" md-label="Gradient">
 							<md-field>
 								<label for="skyBackground">Estilo do gradiente</label>
-								<md-input name="skyBackground" id="skyBackground" v-model="gradient" required/>
+								<md-input name="skyBackground" id="skyBackground" v-model="background" required/>
+								 <span class="md-helper-text">Utilize o estilo do gradiente. Ex: linear-gradient(#e66465, #9198e5)</span>
 							</md-field>
 						</md-tab>
 						<md-tab id="img" md-label="Imagem">
 							<md-field>
 								<label for="skyBackground">Url</label>
-								<md-input name="skyBackground" id="skyBackground" v-model="img" required/>
+								<md-input name="skyBackground" id="skyBackground" v-model="background" required/>
 							</md-field>
 						</md-tab>
 					</md-tabs>
@@ -37,16 +35,43 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from 'vue-property-decorator'
-@Component
+import { Component, Prop, Watch, Vue } from 'vue-property-decorator'
+// @ts-ignore
+import { Chrome } from 'vue-color'
+@Component({
+	components: {
+		'chrome-picker': Chrome,
+	},
+})
 export default class BackgroundModal extends Vue {
-	@Prop({type: String})
-	private element: string
+	@Prop({type: HTMLDivElement})
+	private element: HTMLDivElement
 
-	private color: string = ''
-	private gradient: string = ''
-	private img: string = ''
+	private background: any = {}
 	private currentTab: string = 'color'
+
+	@Watch('background', { immediate: true, deep: true })
+	onBackgroundChange() {
+		if (this.currentTab === 'color') {
+			this.element.style.background = this.background.hex || ''
+		} else if (this.currentTab === 'gradient') {
+			this.element.style.background = this.background
+		} else if (this.currentTab === 'img') {
+			this.element.style.background = this.background
+		}
+	}
+
+	private mounted() {
+		this.background = this.element.style.background || ''
+		if (this.background.includes('url(')) {
+			this.currentTab = 'img'
+		} else if (this.background.includes('-gradient(')) {
+			this.currentTab = 'gradient'
+		} else {
+			this.currentTab = 'color'
+		}
+	}
+
 	private close() {
 		this.$emit('close')
 	}
@@ -54,22 +79,12 @@ export default class BackgroundModal extends Vue {
 		event.stopPropagation()
 	}
 	private save() {
-		let background: string = ''
-		switch (this.currentTab) {
-			case 'color':
-				background = this.color
-				break;
-			case 'gradient':
-				background = this.gradient
-				break;
-			case 'img':
-				background = `url(${this.img})`
-				break;
-		}
-		this.$emit('background', this.element, background)
 		this.$emit('close')
 	}
 	private changeTab(current: string) {
+		if (this.currentTab !== current) {
+			this.background = ''
+		}
 		this.currentTab = current
 	}
 }
@@ -146,5 +161,10 @@ section {
 }
 .md-content {
 	height: auto !important;
+}
+
+#color {
+	display: flex;
+	justify-content: center;
 }
 </style>

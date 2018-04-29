@@ -1,5 +1,5 @@
 <template>
-  	<md-card class="widget" @click="preventBubbling">
+  	<md-card class="widget">
 	  	<div v-if="widget.type==='textbox'" class="content">
 			<md-field v-if="isEditing">
 				<label>Conteudo</label>
@@ -7,7 +7,7 @@
 			</md-field>
 			<span v-else>{{widget.content}}</span>
 	  	</div>
-		<div v-if="widget.type==='gallery'" class="content">
+		<div v-else-if="widget.type==='gallery'" class="content">
 			<md-field v-if="isEditing">
 				<md-chips class="md-primary" v-model="widget.content" md-placeholder="Adicionar imagens" :md-format="validUrl">
 					<label>Urls</label>
@@ -39,7 +39,6 @@ import interact from 'interactjs'
 export default class WidgetComponent extends Vue {
 	@Prop({ type: Object })
 	private widget: Widget
-
 	@Prop({ type: Boolean })
 	private isEditing: boolean
 
@@ -55,9 +54,6 @@ export default class WidgetComponent extends Vue {
 		this.startDragListener()
 	}
 
-	private preventBubbling(event: Event) {
-		event.stopPropagation()
-	}
 	private startDragListener() {
 		// target elements with the "draggable" class
 		interact(this.element).draggable({

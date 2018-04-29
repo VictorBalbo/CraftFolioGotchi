@@ -1,26 +1,26 @@
 <template>
-  <main :class="{'editMode': isEditing}">
-	<div id="sky" class="selectable" @click="edit('sky')"></div>
+  <main :class="{'editMode': isEditing && isDeleting}">
+	<div id="sky" class="selectable" @dblclick="editBackground('sky')"></div>
 
 	<widgetComponent v-for="(widget, key) in widgets" :key="key" :widget="widget" :isEditing="isEditing" class="selectable"/>
 
 	<div id="board" class="selectable"></div>
 	<div id="char" class="selectable"></div>
-	<div id="ground" class="selectable" @click="edit('ground')"></div>
+	<div id="ground" class="selectable" @dblclick="editBackground('ground')"></div>
 
 	<div v-if="!isEditing" class="float-menu">	
     	<md-button @click="isEditing=true" class="md-raised md-primary">Entrar modo de Edição</md-button>
 	</div>
 	<div v-if="isEditing" class="float-menu">
     	<md-button @click="saveWidgets" class="md-raised md-primary">Entrar modo de Visualização</md-button>
-		<md-button @click="editWidget()" class="md-icon-button md-raised md-primary">
+		<md-button @click="addWidget" class="md-icon-button md-raised md-primary">
 			<md-icon>add</md-icon>
 			<md-tooltip :md-active="isEditing" md-direction="left">Adicionar Widget</md-tooltip>
 		</md-button>
 	</div>
 
-	<backgroundModal v-if="showBackgroundModal" class="front-view" @close="showBackgroundModal = false" @background="changeBackground" :element="editingElement"/>
-	<widgetModal v-if="showWidgetModal" class="front-view" @close="showWidgetModal = false" @widget="changeWidget" :element="editingElement"/>
+	<backgroundModal v-if="showBackgroundModal" class="front-view" @close="showBackgroundModal = false" :element="editingElement"/>
+	<widgetModal v-if="showWidgetModal" class="front-view" @close="showWidgetModal = false" @widget="saveWidget" :element="editingElement"/>
   </main>
 </template>
 
@@ -40,53 +40,64 @@ import WidgetComponent from '@/components/WidgetComponent.vue'
 })
 export default class World extends Vue {
 	private isEditing: boolean = false
+	private isDeleting: boolean = false
 	private showBackgroundModal: boolean = false
 	private showWidgetModal: boolean = false
-	private editingElement: string = ''
+	private editingElement: HTMLDivElement
 	private sky: HTMLDivElement
 	private ground: HTMLDivElement
 	private widgets: Widget[] = []
+
+	/** Prepare world when DOM is ready */
 	private mounted() {
 		this.sky = document.querySelector('#sky') as HTMLDivElement
 		this.ground = document.querySelector('#ground') as HTMLDivElement
 		const charDiv = document.querySelector('#char') as HTMLDivElement
 		const char = new Character(charDiv, 100)
+
+		// Get saved widgets from localStorage
 		this.initWidgets()
-		window.addEventListener('beforeunload', () => {
-			this.saveWidgets()
-		})
+
+		// Save widgets before page unload
+		window.addEventListener('beforeunload', this.saveWidgets)
 	}
+
+	/** Get saved widgets from localStorage */
 	private initWidgets() {
-		const savedWidgets = JSON.parse(localStorage.getItem('widgets') || '{ }') as Widget[]
+		const savedWidgets = JSON.parse(
+			localStorage.getItem('widgets') || '{ }',
+		) as Widget[]
 		if (savedWidgets.length > 0) {
 			this.widgets = savedWidgets
 		}
 	}
-	private edit(element: string) {
-		if (this.isEditing === true) {
-			this.editingElement = element
-			this.showBackgroundModal = true
-		}
-	}
-	private editWidget(element: string) {
-		if (this.isEditing === true) {
-			this.editingElement = element
-			this.showWidgetModal = true
-		}
-	}
+
+	/** Save widgets on localStorage */
 	private saveWidgets() {
 		const widgetsJson = JSON.stringify(this.widgets)
 		localStorage.setItem('widgets', widgetsJson)
 		this.isEditing = false
 	}
-	private changeBackground(element: string, background: string) {
+
+	/** Show Modal to edit sky and ground background */
+	private editBackground(element: string) {
 		if (element === 'sky') {
-			this.sky.style.background = background
+			this.editingElement = this.sky
 		} else if (element === 'ground') {
-			this.ground.style.background = background
+			this.editingElement = this.ground
+		}
+		this.showBackgroundModal = true
+	}
+
+	/** Show modal to add new widget */
+	private addWidget() {
+		if (this.isEditing === true) {
+			this.showWidgetModal = true
 		}
 	}
-	private changeWidget(widget: Widget) {
+
+	/** Get new widget from modal and add to list */
+	private saveWidget(widget: Widget) {
 		this.widgets.push(widget)
 	}
 }
@@ -102,6 +113,7 @@ main {
 	&.editMode .selectable:hover {
 		opacity: 0.5;
 		outline: #448aff solid 2px;
+		cursor: pointer;
 	}
 
 	#sky {
@@ -155,8 +167,8 @@ main {
 		align-items: flex-end;
 		z-index: 0;
 	}
-	
-	.front-view{
+
+	.front-view {
 		z-index: 1;
 	}
 }

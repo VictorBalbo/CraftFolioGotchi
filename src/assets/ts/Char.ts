@@ -1,10 +1,10 @@
 import Rx from 'rxjs/Rx'
 
 export class Character {
-	public element: HTMLDivElement;
-	public x: number;
-	public y: number;
-	public size: number;
+	public element: HTMLDivElement
+	public x: number
+	public y: number
+	public size: number
 	public maxX = 0
 	public stepSize = 80
 
@@ -47,9 +47,12 @@ export class Character {
 			})
 
 		Rx.Observable.merge(
-			Rx.Observable.fromEvent(this.element, 'click'),
+			Rx.Observable.fromEvent(document, 'keydown'),
 			Rx.Observable.fromEvent(this.element, 'touchstart'),
 		)
+			.filter(
+				(event: any) => event.type === 'touchstart' || event.key === 'ArrowUp',
+			)
 			.throttleTime(500)
 			.subscribe((event: any) => {
 				event.stopPropagation() // Prevent event bubbling
