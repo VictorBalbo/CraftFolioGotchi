@@ -14,8 +14,20 @@
 						</md-tab>
 						<md-tab id="textBox" md-label="Caixa de Texto">
 							<md-field>
-								<label for="textBox">Texto</label>
-								<md-input name="textBox" id="textBox" v-model="text" required/>
+								<label for="textBoxInput">Texto</label>
+								<md-input name="textBoxInput" id="textBoxInput" v-model="text" required/>
+							</md-field>
+						</md-tab>
+						<md-tab id="audio" md-label="Audio">
+							<md-field>
+								<label for="audioSrc">Src</label>
+								<md-input name="audioSrc" id="audioSrc" v-model="audio" type="url" required/>
+							</md-field>
+						</md-tab>
+						<md-tab id="video" md-label="Video">
+							<md-field>
+								<label for="videoSrc">Src</label>
+								<md-input name="videoSrc" id="videoSrc" v-model="video" type="url" required/>
 							</md-field>
 						</md-tab>
 					</md-tabs>
@@ -34,11 +46,13 @@ import { Component, Prop, Vue } from 'vue-property-decorator'
 import { Widget } from '@/assets/ts'
 @Component
 export default class WidgetModal extends Vue {
-	@Prop({type: String})
-	private element: string
+	@Prop({ type: HTMLDivElement })
+	private element: HTMLDivElement
 
 	private urls: string[] = []
 	private text: string = ''
+	private audio: string = ''
+	private video: string = ''
 	private currentTab: string = 'gallery'
 	private close() {
 		this.$emit('close')
@@ -56,11 +70,19 @@ export default class WidgetModal extends Vue {
 			case 'gallery':
 				widget.type = 'gallery'
 				widget.content = this.urls
-				break;
+				break
 			case 'textBox':
 				widget.type = 'textbox'
 				widget.content = this.text
-				break;
+				break
+			case 'audio':
+				widget.type = 'audio'
+				widget.content = this.audio
+				break
+			case 'video':
+				widget.type = 'video'
+				widget.content = this.video
+				break
 		}
 		this.$emit('widget', widget)
 		this.$emit('close')

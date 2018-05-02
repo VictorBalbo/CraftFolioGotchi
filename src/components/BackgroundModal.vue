@@ -51,7 +51,7 @@ export default class BackgroundModal extends Vue {
 	private currentTab: string = 'color'
 
 	@Watch('background', { immediate: true, deep: true })
-	onBackgroundChange() {
+	private onBackgroundChange() {
 		if (this.currentTab === 'color') {
 			this.element.style.background = this.background.hex || ''
 		} else if (this.currentTab === 'gradient') {

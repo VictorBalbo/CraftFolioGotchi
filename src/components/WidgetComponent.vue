@@ -27,6 +27,28 @@
 				</div>
 			</div>
 	  	</div>
+		<div v-else-if="widget.type==='audio'" class="content">
+			<md-field v-if="isEditing">
+				<md-field>
+					<label for="audioSrc">Audio</label>
+					<md-input type="url" id="audioSrc" v-model="widget.content" required/>
+				</md-field>
+			</md-field>
+			<div v-else class="">
+				<audio :src="widget.content" controls class="md-image"></audio>
+			</div>
+	  	</div>
+		<div v-else-if="widget.type==='video'" class="content">
+			<md-field v-if="isEditing">
+				<md-field>
+					<label for="videoSrc">Video</label>
+					<md-input type="url" id="videoSrc" v-model="widget.content" required/>
+				</md-field>
+			</md-field>
+			<div v-else class="">
+				<video :src="widget.content" controls></video>
+			</div>
+	  	</div>
   	</md-card>
 </template>
 
