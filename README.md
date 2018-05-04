@@ -6,9 +6,13 @@ O CraftFolioGotchi® é um sistema Web desenvolvido por **Lucas Viana** e **Vict
 
 O sistema foi desenvolvido utilizando o framework [Vue.js](https://vuejs.org/) e baseado no layout da Google [Material Desing](https://material.io/).
 
+# Funcioamento
+* Atravez do botão no **canto superior esquerdo** da tela, o mundo alterna entre o modo de **edição** e **visualização**.
+* No modo de **edição** é possivel alterar o **conteudo** dos widgets adicionados à pagina.
+* Para alterar o *background* do **Céu** e do **Chão**, é necessario entrar no modo de **Edição** e **clicar duas vezes** no background. Isso irá abrir o modal para edição.
 # Executar
 * `npm install`
-* `npm start`
+* `npm run dev`
 * O projeto irá rodar em `http://localhost:8080`
 
 # Testar
