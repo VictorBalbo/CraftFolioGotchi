@@ -43,6 +43,7 @@ import { Action, State } from 'vuex-class'
 export default class World extends Vue {
 	@State private user: any
 	@Action private setUser: any
+	@Action private setWorld: any
 	private isEditing: boolean = false
 	private isDeleting: boolean = false
 	private showBackgroundModal: boolean = false
@@ -54,20 +55,12 @@ export default class World extends Vue {
 
 	private async created() {
 		let world
-		const storedUser = JSON.parse(localStorage.getItem('user') || '{ }')
 		// If user not logged in and whithout id on url
-		if (!this.user && !this.$route.params.userId && !storedUser) {
+		if (!this.user && !this.$route.params.userId) {
 			alert('Usuario não logado')
 			this.$router.push('/')
 		} else if (this.user) {
 			world = this.user.World
-			localStorage.setItem(
-				'user',
-				JSON.stringify({ _id: this.user._id, World: this.user.World }),
-			)
-		} else if (storedUser) {
-			world = storedUser.World
-			this.setUser(storedUser)
 		} else if (this.$route.params.userId) {
 			const response = await fetch(
 				`${CONSTANTS.BACKEND_URL}/user/${this.$route.params.userId}`,
@@ -100,20 +93,7 @@ export default class World extends Vue {
 				Sky: this.sky.style.background,
 				Ground: this.ground.style.background,
 			}
-			const response = await fetch(
-				`${CONSTANTS.BACKEND_URL}/user/${this.user._id}`,
-				{
-					method: 'POST',
-					body: JSON.stringify(world),
-					headers: {
-						'Content-Type': 'application/json',
-					},
-				},
-			)
-			localStorage.setItem(
-				'user',
-				JSON.stringify({ _id: this.user._id, World: world }),
-			)
+			this.setWorld(world)
 		}
 		this.isEditing = false
 	}
