@@ -31,6 +31,8 @@ import { Character, Widget } from '@/assets/ts'
 import BackgroundModal from '@/components/BackgroundModal.vue'
 import WidgetModal from '@/components/WidgetModal.vue'
 import WidgetComponent from '@/components/WidgetComponent.vue'
+import { CONSTANTS } from '@/Constants'
+import { Action, State } from 'vuex-class'
 @Component({
 	components: {
 		BackgroundModal,
@@ -39,6 +41,8 @@ import WidgetComponent from '@/components/WidgetComponent.vue'
 	},
 })
 export default class World extends Vue {
+	@State private user: any
+	@Action private setUser: any
 	private isEditing: boolean = false
 	private isDeleting: boolean = false
 	private showBackgroundModal: boolean = false
@@ -48,6 +52,35 @@ export default class World extends Vue {
 	private ground: HTMLDivElement
 	private widgets: Widget[] = []
 
+	private async created() {
+		let world
+		const storedUser = JSON.parse(localStorage.getItem('user') || '{ }')
+		// If user not logged in and whithout id on url
+		if (!this.user && !this.$route.params.userId && !storedUser) {
+			alert('Usuario não logado')
+			this.$router.push('/')
+		} else if (this.user) {
+			world = this.user.World
+			localStorage.setItem(
+				'user',
+				JSON.stringify({ _id: this.user._id, World: this.user.World }),
+			)
+		} else if (storedUser) {
+			world = storedUser.World
+			this.setUser(storedUser)
+		} else if (this.$route.params.userId) {
+			const response = await fetch(
+				`${CONSTANTS.BACKEND_URL}/user/${this.$route.params.userId}`,
+			)
+			world = await response.json()
+		}
+
+		// Initialize saved widgets if exists
+		if (world && world.Widgets) {
+			this.widgets = world.Widgets
+		}
+	}
+
 	/** Prepare world when DOM is ready */
 	private mounted() {
 		this.sky = document.querySelector('#sky') as HTMLDivElement
@@ -55,27 +88,33 @@ export default class World extends Vue {
 		const charDiv = document.querySelector('#char') as HTMLDivElement
 		const char = new Character(charDiv, 100)
 
-		// Get saved widgets from localStorage
-		this.initWidgets()
-
 		// Save widgets before page unload
 		window.addEventListener('beforeunload', this.saveWidgets)
 	}
 
-	/** Get saved widgets from localStorage */
-	private initWidgets() {
-		const savedWidgets = JSON.parse(
-			localStorage.getItem('widgets') || '{ }',
-		) as Widget[]
-		if (savedWidgets.length > 0) {
-			this.widgets = savedWidgets
-		}
-	}
-
 	/** Save widgets on localStorage */
-	private saveWidgets() {
-		const widgetsJson = JSON.stringify(this.widgets)
-		localStorage.setItem('widgets', widgetsJson)
+	private async saveWidgets() {
+		if (this.user) {
+			const world = {
+				Widgets: this.widgets,
+				Sky: this.sky.style.background,
+				Ground: this.ground.style.background,
+			}
+			const response = await fetch(
+				`${CONSTANTS.BACKEND_URL}/user/${this.user._id}`,
+				{
+					method: 'POST',
+					body: JSON.stringify(world),
+					headers: {
+						'Content-Type': 'application/json',
+					},
+				},
+			)
+			localStorage.setItem(
+				'user',
+				JSON.stringify({ _id: this.user._id, World: world }),
+			)
+		}
 		this.isEditing = false
 	}
 

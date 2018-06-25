@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import App from './App.vue'
 import router from './router'
+import { Store } from './store/User'
 
 // @ts-ignore
 import VueMaterial from 'vue-material'
@@ -15,5 +16,6 @@ Vue.use(VueMaterial)
 
 new Vue({
 	router,
+	store: Store,
 	render: (h) => h(App),
 }).$mount('#app')

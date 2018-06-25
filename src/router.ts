@@ -1,10 +1,10 @@
-import Vue from 'vue';
-import Router from 'vue-router';
-import Login from '@/components/Login.vue';
-import SignUp from '@/components/SignUp.vue';
-import World from '@/components/World.vue';
+import Vue from 'vue'
+import Router from 'vue-router'
+import Login from '@/components/Login.vue'
+import SignUp from '@/components/SignUp.vue'
+import World from '@/components/World.vue'
 
-Vue.use(Router);
+Vue.use(Router)
 
 export default new Router({
 	routes: [
@@ -23,5 +23,10 @@ export default new Router({
 			name: 'World',
 			component: World,
 		},
+		{
+			path: '/world/:userId',
+			name: 'World',
+			component: World,
+		},
 	],
-});
+})
