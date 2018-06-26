@@ -20,7 +20,7 @@
 	</div>
 
 	<backgroundModal v-if="showBackgroundModal" class="front-view" @close="showBackgroundModal = false" :element="editingElement"/>
-	<widgetModal v-if="showWidgetModal" class="front-view" @close="showWidgetModal = false" @widget="saveWidget" :element="editingElement"/>
+	<widgetModal v-if="showWidgetModal" class="front-view" @close="showWidgetModal = false" @widget="saveWidget"/>
   </main>
 </template>
 
@@ -86,7 +86,7 @@ export default class World extends Vue {
 	}
 
 	/** Save widgets on localStorage */
-	private async saveWidgets() {
+	private saveWidgets() {
 		if (this.user) {
 			const world = {
 				Widgets: this.widgets,

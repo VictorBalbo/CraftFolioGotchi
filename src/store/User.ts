@@ -13,7 +13,7 @@ export const Store = new Vuex.Store({
 			state.user = user
 		},
 		setWorld(state, world) {
-			state.user.world = world
+			state.user.World = world
 		},
 	},
 	actions: {
@@ -43,7 +43,7 @@ export const Store = new Vuex.Store({
 
 export interface IUser {
 	_id: string
-	login: string
-	password: string
-	world: any
+	Login: string
+	Password: string
+	World: any
 }
