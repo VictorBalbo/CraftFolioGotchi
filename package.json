@@ -15,6 +15,7 @@
     "rxjs": "^5.5.10",
     "vue": "^2.5.16",
     "vue-class-component": "^6.0.0",
+    "vue-clipboard2": "^0.2.0",
     "vue-color": "^2.4.6",
     "vue-material": "1.0.0-beta-8",
     "vue-property-decorator": "^6.0.0",

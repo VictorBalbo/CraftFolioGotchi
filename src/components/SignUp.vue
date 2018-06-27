@@ -6,20 +6,20 @@
       </md-card-header>
 
       <md-card-content>
-				<md-field>
-					<label for="login">Login</label>
-					<md-input name="login" id="login" v-model="login" required/>
-				</md-field>
-				<md-field>
-					<label for="password">Password</label>
-					<md-input name="password" id="password" type="password" v-model="password" required/>
-				</md-field>
-				<md-field>
-					<label for="confirmPassword">Confirm Password</label>
-					<md-input name="confirmPassword" id="confirmPassword" type="password" v-model="confirmPassword" required/>
-				</md-field>
-				<md-button class="md-raised md-primary" @click="signUp">Cadastrar</md-button>
-				<p>Ja possui um Login? <a href="/">Logar</a></p>
+		<md-field>
+			<label for="login">Login</label>
+			<md-input name="login" id="login" v-model="login" required/>
+		</md-field>
+		<md-field>
+			<label for="password">Password</label>
+			<md-input name="password" id="password" type="password" v-model="password" required/>
+		</md-field>
+		<md-field>
+			<label for="confirmPassword">Confirm Password</label>
+			<md-input name="confirmPassword" id="confirmPassword" type="password" v-model="confirmPassword" required/>
+		</md-field>
+		<md-button class="md-raised md-primary" @click="signUp">Cadastrar</md-button>
+		<p>Ja possui um Login? <a href="/">Logar</a></p>
       </md-card-content>
     </md-card>
   </main>

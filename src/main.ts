@@ -9,7 +9,10 @@ import 'vue-material/dist/vue-material.min.css'
 import 'vue-material/dist/theme/default.css'
 // @ts-ignore
 import VueTheMask from 'vue-the-mask'
+// @ts-ignore
+import VueClipboard from 'vue-clipboard2'
 
+Vue.use(VueClipboard)
 Vue.use(VueTheMask)
 Vue.config.productionTip = false
 Vue.use(VueMaterial)

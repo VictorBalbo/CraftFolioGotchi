@@ -2,21 +2,27 @@
   <main :class="{'editMode': isEditing && isDeleting}">
 	<div id="sky" class="selectable" @dblclick="editBackground('sky')"></div>
 
-	<widgetComponent v-for="(widget, key) in widgets" :key="key" :widget="widget" :isEditing="isEditing" class="selectable"/>
+	<widgetComponent v-for="(widget, key) in widgets" :key="key" :widget="widget" :isEditing="isEditing" @saveWorld="saveWidgets" class="selectable"/>
 
 	<div id="board" class="selectable"></div>
-	<div id="char" class="selectable"></div>
+	<div id="char" v-if="!isMine"></div>
+	<div id="userChar" class="selectable"></div>
 	<div id="ground" class="selectable" @dblclick="editBackground('ground')"></div>
 
-	<div v-if="!isEditing" class="float-menu">	
+	<div v-if="isMine && !isEditing" class="float-menu">	
     	<md-button @click="isEditing=true" class="md-raised md-primary">Entrar modo de Edição</md-button>
+    	<md-button @click="shareWorld" @blur="sharedTooltip=false" class="md-raised md-primary">Compartilhar mundo</md-button>
+		<md-tooltip :md-active="sharedTooltip" md-direction="bottom">Link copiado</md-tooltip>
 	</div>
-	<div v-if="isEditing" class="float-menu">
+	<div v-if="isMine && isEditing" class="float-menu">
     	<md-button @click="saveWidgets" class="md-raised md-primary">Entrar modo de Visualização</md-button>
 		<md-button @click="addWidget" class="md-icon-button md-raised md-primary">
 			<md-icon>add</md-icon>
 			<md-tooltip :md-active="isEditing" md-direction="left">Adicionar Widget</md-tooltip>
 		</md-button>
+	</div>
+	<div v-if="!isMine" class="float-menu">	
+    	<md-button @click="reloadWorld" class="md-raised md-primary">Voltar para minha pagina</md-button>
 	</div>
 
 	<backgroundModal v-if="showBackgroundModal" class="front-view" @close="showBackgroundModal = false" :element="editingElement"/>
@@ -26,7 +32,7 @@
 
 <script lang="ts">
 import Vue from 'vue'
-import { Component } from 'vue-property-decorator'
+import { Component, Watch } from 'vue-property-decorator'
 import { Character, Widget } from '@/assets/ts'
 import BackgroundModal from '@/components/BackgroundModal.vue'
 import WidgetModal from '@/components/WidgetModal.vue'
@@ -45,6 +51,8 @@ export default class World extends Vue {
 	@Action private setUser: any
 	@Action private setWorld: any
 	private isEditing: boolean = false
+	private isMine: boolean = true
+	private sharedTooltip: boolean = false
 	private isDeleting: boolean = false
 	private showBackgroundModal: boolean = false
 	private showWidgetModal: boolean = false
@@ -55,34 +63,53 @@ export default class World extends Vue {
 
 	private async created() {
 		let world
-		// If user not logged in and whithout id on url
-		if (!this.user && !this.$route.params.userId) {
+		// If user not logged in
+		if (!this.user) {
 			alert('Usuario não logado')
 			this.$router.push('/')
-		} else if (this.user) {
-			world = this.user.World
-		} else if (this.$route.params.userId) {
+		} else if (
+			this.$route.params.userId &&
+			this.$route.params.userId !== this.user._id
+		) {
+			this.isMine = false
 			const response = await fetch(
 				`${CONSTANTS.BACKEND_URL}/user/${this.$route.params.userId}`,
 			)
 			world = await response.json()
+		} else {
+			world = this.user.World
 		}
 
-		// Initialize saved widgets if exists
-		if (world && world.Widgets) {
-			this.widgets = world.Widgets
+		// Initialize world if exists
+		if (world) {
+			if (world.Widgets) {
+				this.widgets = world.Widgets
+			}
+			if (world.Sky) {
+				this.sky.style.background = world.Sky
+			}
+			if (world.Ground) {
+				this.ground.style.background = world.Ground
+			}
 		}
+	}
+
+	private shareWorld() {
+		this.sharedTooltip = true
+		// @ts-ignore
+		this.$copyText(`${document.URL}/${this.user._id}`)
+	}
+
+	private reloadWorld() {
+		this.$router.push('/world')
 	}
 
 	/** Prepare world when DOM is ready */
 	private mounted() {
 		this.sky = document.querySelector('#sky') as HTMLDivElement
 		this.ground = document.querySelector('#ground') as HTMLDivElement
-		const charDiv = document.querySelector('#char') as HTMLDivElement
+		const charDiv = document.querySelector('#userChar') as HTMLDivElement
 		const char = new Character(charDiv, 100)
-
-		// Save widgets before page unload
-		window.addEventListener('beforeunload', this.saveWidgets)
 	}
 
 	/** Save widgets on localStorage */
@@ -150,6 +177,7 @@ main {
 		background-size: contain;
 	}
 
+	#userChar,
 	#char {
 		height: 100px;
 		width: 100px;

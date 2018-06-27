@@ -101,6 +101,7 @@ export default class WidgetComponent extends Vue {
 			// call this function on every dragend event
 			onend: (event) => {
 				const textEl = event.target.querySelector('p')
+				this.$emit('saveWorld')
 
 				return (
 					textEl &&
