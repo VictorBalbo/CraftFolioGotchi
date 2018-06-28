@@ -12,10 +12,11 @@
 	<div v-if="isMine && !isEditing" class="float-menu">	
     	<md-button @click="isEditing=true" class="md-raised md-primary">Entrar modo de Edição</md-button>
     	<md-button @click="shareWorld" @blur="sharedTooltip=false" class="md-raised md-primary">Compartilhar mundo</md-button>
+    	<md-button @click="logout" class="md-raised md-primary">Logout</md-button>
 		<md-tooltip :md-active="sharedTooltip" md-direction="bottom">Link copiado</md-tooltip>
 	</div>
 	<div v-if="isMine && isEditing" class="float-menu">
-    	<md-button @click="saveWidgets" class="md-raised md-primary">Entrar modo de Visualização</md-button>
+    	<md-button @click="saveWidgets(true)" class="md-raised md-primary">Entrar modo de Visualização</md-button>
 		<md-button @click="addWidget" class="md-icon-button md-raised md-primary">
 			<md-icon>add</md-icon>
 			<md-tooltip :md-active="isEditing" md-direction="left">Adicionar Widget</md-tooltip>
@@ -64,7 +65,7 @@ export default class World extends Vue {
 	private async created() {
 		let world
 		// If user not logged in
-		if (!this.user) {
+		if (!this.user || !this.user._id) {
 			alert('Usuario não logado')
 			this.$router.push('/')
 		} else if (
@@ -102,6 +103,12 @@ export default class World extends Vue {
 
 	private reloadWorld() {
 		this.$router.push('/world')
+		location.reload()
+	}
+
+	private logout() {
+		localStorage.setItem('user', '')
+		this.$router.push('/')
 	}
 
 	/** Prepare world when DOM is ready */
@@ -113,7 +120,7 @@ export default class World extends Vue {
 	}
 
 	/** Save widgets on localStorage */
-	private saveWidgets() {
+	private saveWidgets(stopEditing: boolean = false) {
 		if (this.user) {
 			const world = {
 				Widgets: this.widgets,
@@ -122,7 +129,9 @@ export default class World extends Vue {
 			}
 			this.setWorld(world)
 		}
-		this.isEditing = false
+		if (stopEditing) {
+			this.isEditing = false
+		}
 	}
 
 	/** Show Modal to edit sky and ground background */
