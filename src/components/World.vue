@@ -80,7 +80,7 @@ export default class World extends Vue {
 				world = await response.json()
 			} catch (e) {
 				alert('Usuario não encontrado')
-				this.$router.push('/')
+				this.reloadWorld()
 			}
 		} else {
 			world = this.user.World
