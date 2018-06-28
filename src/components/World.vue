@@ -72,11 +72,16 @@ export default class World extends Vue {
 			this.$route.params.userId &&
 			this.$route.params.userId !== this.user._id
 		) {
-			this.isMine = false
-			const response = await fetch(
-				`${CONSTANTS.BACKEND_URL}/user/${this.$route.params.userId}`,
-			)
-			world = await response.json()
+			try {
+				this.isMine = false
+				const response = await fetch(
+					`${CONSTANTS.BACKEND_URL}/user/${this.$route.params.userId}`,
+				)
+				world = await response.json()
+			} catch (e) {
+				alert('Usuario não encontrado')
+				this.$router.push('/')
+			}
 		} else {
 			world = this.user.World
 		}
